@@ -12,7 +12,9 @@ class ItemsController < ApplicationController
     else
       render :new, status: :unprocessable_entity
     end
-
+  end
+  def show
+    @items = Item.order(created_at: :desc)
   end
 
   private
