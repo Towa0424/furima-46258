@@ -40,7 +40,7 @@ class OrdersController < ApplicationController
    end
 
    def move_to_index
-    if @item.sold_out? || current_user = @item.user
+    if @item.sold_out? || current_user == @item.user
       redirect_to root_path 
     end
    end
