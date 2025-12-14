@@ -41,6 +41,8 @@ class ItemsController < ApplicationController
     @item = Item.find(params[:id])
   end
   def move_to_index
-    redirect_to root_path unless current_user == @item.user
+    if current_user =! @item.user || @item.sold_out? 
+      redirect_to root_path 
+    end
   end
 end
