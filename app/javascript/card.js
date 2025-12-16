@@ -1,5 +1,5 @@
 const pay = () => {
-  const publickey = gon.public_key
+  const publickey = window.gon.public_key
   const payjp = Payjp(publickey)
   const elements = payjp.elements();
   const numberElement = elements.create('cardNumber');
@@ -11,6 +11,7 @@ const pay = () => {
   cvcElement.mount('#cvc-form');
 
   const form = document.getElementById('charge-form')
+  if (!form) return;
   form.addEventListener("submit", (e) => {
     payjp.createToken(numberElement).then(function (response) {
       if (response.error) {
