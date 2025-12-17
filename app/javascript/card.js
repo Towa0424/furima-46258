@@ -1,52 +1,34 @@
 const pay = () => {
-  const form = document.getElementById("charge-form");
-  if (!form) return;
-
-  if (
-    !document.getElementById("number-form") ||
-    !document.getElementById("expiry-form") ||
-    !document.getElementById("cvc-form")
-  ) return;
-
-  if (form.dataset.payjpInitialized === "1") return;
-  form.dataset.payjpInitialized = "1";
-
-  const publicKey = window.gon?.public_key;
-  if (!publicKey) return;
-
-  window.__payjp ||= Payjp(publicKey);
-  const payjp = window.__payjp;
-
+  const publicKey = gon.public_key
+  const payjp = Payjp(publicKey)
   const elements = payjp.elements();
-  const numberElement = elements.create("cardNumber");
-  const expiryElement = elements.create("cardExpiry");
-  const cvcElement = elements.create("cardCvc");
+  const numberElement = elements.create('cardNumber');
+  const expiryElement = elements.create('cardExpiry');
+  const cvcElement = elements.create('cardCvc');
+  console.log(publicKey)
 
-  numberElement.mount("#number-form");
-  expiryElement.mount("#expiry-form");
-  cvcElement.mount("#cvc-form");
+  numberElement.mount('#number-form');
+  expiryElement.mount('#expiry-form');
+  cvcElement.mount('#cvc-form');
 
-  form.addEventListener(
-    "submit",
-    async (e) => {
-      e.preventDefault();
-
-      form.querySelector('input[name="order_address[token]"]')?.remove();
-
-      const response = await payjp.createToken(numberElement);
-
-      if (response.error) return;
-
-      const tokenInput = document.createElement("input");
-      tokenInput.type = "hidden";
-      tokenInput.name = "order_address[token]";
-      tokenInput.value = response.id;
-      form.appendChild(tokenInput);
-
-      form.submit();
-    },
-    { once: true }
-  );
+  const form = document.getElementById('charge-form')
+  form.addEventListener("submit", (e) => {
+    payjp.createToken(numberElement).then(function (response) {
+      if (response.error) {
+      } else {
+        const token = response.id;
+        const renderDom = document.getElementById("charge-form");
+        const tokenObj = `<input value=${token} name='token' type="hidden">`;
+        renderDom.insertAdjacentHTML("beforeend", tokenObj);
+      }
+      numberElement.clear();
+      expiryElement.clear();
+      cvcElement.clear();
+      document.getElementById("charge-form").submit();
+    });
+    e.preventDefault();
+  });
 };
 
-document.addEventListener("turbo:load", pay);
+window.addEventListener("turbo:load", pay);
+window.addEventListener("turbo:render", pay);
